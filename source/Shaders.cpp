@@ -177,7 +177,8 @@ void main()
 // pattern. Focus is a disc of taps on the sensor, each tap the same analytic
 // box: blur before sampling, which is the only place a lens can blur.
 //
-// TIME. Sensor row r of H integrates over [ r * Tr / H, r * Tr / H + E ]. In
+// TIME. Sensor row r of H integrates over [ r * Tr / H, r * Tr / H + E ] --
+// readout's row-time model, with the window recast in PWM sub-periods. In
 // sub-period units that window is handed over per row as ( whole, fraction )
 // pairs, computed in double on the CPU, so nothing here ever holds a large
 // number: the overlap of the window with an LED's pulse train is
@@ -455,33 +456,33 @@ void main()
 	p       = clamp( p, ivec2( 0 ), Size - 1 );
 	p.y     = Size.y - 1 - p.y;
 
+	//The 3x3 neighbourhood of the MOSAIC: each site fetched once, carrying
+	//only the channel its filter passes. Nine fetches, not one per channel
+	//per neighbour.
 	int own = channelOf( p );
+	vec3 sum   = vec3( 0.0 );
+	vec3 count = vec3( 0.0 );
+	float centre = 0.0;
+	for( int dy = -1; dy <= 1; ++dy )
+		for( int dx = -1; dx <= 1; ++dx )
+		{
+			ivec2 n     = p + ivec2( dx, dy );
+			int channel = channelOf( n );
+			float v     = mosaic( n, channel );
+			if( dx == 0 && dy == 0 )
+			{
+				centre = v;
+				continue;
+			}
+			//The neighbours that carry a channel: two across or two down for
+			//a colour at a green site, four diagonals for the opposite colour,
+			//four orthogonals for green.
+			sum[ channel ] += v;
+			count[ channel ] += 1.0;
+		}
 	vec3 colour = vec3( 0.0 );
 	for( int channel = 0; channel < 3; ++channel )
-	{
-		if( channel == own )
-		{
-			colour[ channel ] = mosaic( p, own );
-			continue;
-		}
-		//The neighbours in the 3x3 that carry this channel: two across or two
-		//down for a colour at a green site, four diagonals for the opposite
-		//colour, four orthogonals for green.
-		float sum   = 0.0;
-		float count = 0.0;
-		for( int dy = -1; dy <= 1; ++dy )
-			for( int dx = -1; dx <= 1; ++dx )
-			{
-				if( dx == 0 && dy == 0 )
-					continue;
-				ivec2 n = p + ivec2( dx, dy );
-				if( channelOf( n ) != channel )
-					continue;
-				sum += mosaic( n, channel );
-				count += 1.0;
-			}
-		colour[ channel ] = count > 0.0 ? sum / count : 0.0;
-	}
+		colour[ channel ] = channel == own ? centre : ( count[ channel ] > 0.0 ? sum[ channel ] / count[ channel ] : 0.0 );
 
 	vec4 source = texture( Source, uv * MaxUV );
 	fragColor   = mix( source, vec4( colour, 1.0 ), MixAmount );

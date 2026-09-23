@@ -1,0 +1,77 @@
+# pitch
+
+An LED wall seen through a camera, as an FFGL **effect** for Resolume Arena/Avenue.
+C++/GLSL, CMake MODULE → universal `.bundle` (macOS) + Windows `.dll`. MIT.
+
+Read `AGENTS.md` before changing the sensor pass, the row table or the drive model.
+
+## Commands (CMake)
+- Configure: `cmake -B build -DCMAKE_BUILD_TYPE=Release`
+- Fast dev build: add `-DCMAKE_OSX_ARCHITECTURES=arm64`
+- Universal (what ships): `cmake -B build-universal -DCMAKE_BUILD_TYPE=Release`
+- Build: `cmake --build build --parallel`
+- Install into Arena: `cmake --install build` — **not run from a session**, it writes
+  into `~/Documents/Resolume Arena/Extra Effects`
+- Render a frame offline: `./build/pitest --out /tmp/f.png --size 1920x1080`
+- Set anything by name: `--set "Camera Scale=0.4" --set "Bayer On=0" --set "Cabinet W=64"`
+  (0..1 for sliders, the real integer for integers, the element index for options)
+- List parameters, kinds, defaults and ranges: `./build/pitest --list`
+- Other sources: `--source flat --level 128`, `--source white`
+- Footage through the real shaders — **`--pipe`**, raw RGBA frames in, raw RGBA frames
+  out, with `--size WxH` and an optional `--script` of timed `frame Name Value` cues:
+  `ffmpeg … -f rawvideo -pix_fmt rgba - | ./build/pitest --pipe --size 1920x1080 [--script cues.txt] | ffmpeg …`
+
+## Verify
+- Everything: `tools/verify.sh` (fresh universal build + every check at 320x180 AND
+  1280x720 + the sweep + the bundle)
+- The neutral settings return the input byte for byte: `./build/pitest --identity`
+- The optics conserve light: `./build/pitest --energy`
+- The fringe period is `1/|s - round(s)|` px and Focus kills it: `./build/pitest --moire`
+- The band period is `P/(Tr/H)` rows and a whole-period shutter has none: `./build/pitest --bands`
+- Band depth against the closed-form overlap: `./build/pitest --pwm`
+- Dead cabinets exactly black and aligned; a seed reproduces: `./build/pitest --faults`
+- The mosaic samples each colour where it says: `./build/pitest --bayer`
+- The checks can fail: `./build/pitest --negative`
+- Every check takes `--size WxH`; CI runs them at 320x180
+- No dead controls: `python3 tools/sweep.py` (`--size WxH`, `--jobs N`)
+- Render cost: `./build/pitest --bench` (best of three; the GPU here is shared)
+- What a host sees: `../oxbow/build/oxbow probe build-universal/Pitch.bundle`
+
+## Notes
+- **Two samplings.** The sensor pass does both: an analytic box over the LED grid
+  per pixel (space) and a closed-form overlap with the PWM pulse train per row
+  (time). `Pitch.cpp` only converts controls into the shader's units and fills the
+  per-row window table in double. A wrong fringe or a wrong band is a GLSL fix.
+- **Nothing absolute crosses into GLSL.** The row table carries each row's window as
+  `( floor, frac )` pairs in sub-periods, with the frame's whole sub-periods dropped
+  in double on the CPU. Resolume's clock has been seen at 499,217 s.
+- **Every overlap is taken in the LED's own coordinates**, and every pixel box is
+  built from mapped pixel EDGES. At the wall's magnitude a float resolves 1e-5 of an
+  LED, and building boxes as centre ± half leaves a gap of that size at every pixel.
+- **`OverlapDetune` and `BayerPhase` are test hooks**, always 0 in the plugin; they
+  exist so `--negative` can prove the checks fail.
+- **Parameter names must be unique** — `--set` and the sweep find them by name.
+- `SetParamInfo` clamps a STANDARD default into 0..1 before `SetParamRange` can widen
+  it, so every slider is 0..1 and `Controls.cpp` holds the units, with inverses.
+  `FF_TYPE_INTEGER` is exempt: Cabinet W/H, Module Rows, Grey Bits and Fault Seed
+  hold their real values. Options are mapped by index in `Controls.cpp`.
+- Override `SetTextParameter` to return FF_SUCCESS for the About block, or no host can
+  instantiate the plugin at all.
+- `pitch_core` is an OBJECT library, not STATIC — the plugin registers itself from a
+  file-scope constructor nothing references by name.
+- `FFGLScopedFBOBinding.h` is not in the umbrella header; include `<ffglex/FFGLScopedFBOBinding.h>`.
+- macOS build must be universal. Verify with `lipo`, never the build log.
+- FFGL id is `PI01`, display name `SW Pitch`.
+
+## Not done yet
+- **Never loaded into Resolume.** Everything numeric is measured offline on macOS,
+  plus an `oxbow` load. The Windows build is CI-only and has never run.
+- No user guide, no OpenFX port, no browser demo, no factory presets.
+- `StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies with `guide=""`.
+
+## Diagnostics
+
+`source/Diag.{h,cpp}` — log file only, no crash handler (this runs inside Resolume).
+
+    ~/Library/Logs/pitch/pitch.YYYY-MM-DD.log        (macOS)
+    %LOCALAPPDATA%\pitch\logs\pitch.YYYY-MM-DD.log   (Windows)
