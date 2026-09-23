@@ -339,7 +339,8 @@ by hand.
 - **The 32-tap disc** is a fixed golden-angle spiral; its MTF is not the ideal jinc.
   The moiré check measures what it does (0.0099 residual against an ideal 0.037 ×
   0.126 = 0.0047), not what a jinc would.
-- **No OpenFX port and no browser demo.** Not required for 0.1.0.
+- **No OpenFX port.** Not required for 0.1.0. The browser demo exists (2026-09-24);
+  its CPU half is a hand port that nothing but a reader checks — see below.
 - **`StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies**, in
   the shape the fleet's syncs generate; register the project and re-run the syncs
   before the first release. `guide` was set to
@@ -379,3 +380,31 @@ by hand.
 - **rosette** — a lattice seen through a sampling grid, and the moiré it makes.
 - **tinsel** — `PassBuffer`, `sweep.py`, and the fleet's trap list.
 - **oxbow** — `oxbow probe` and `oxbow selftest` are what load this bundle as a host.
+
+## The browser demo, 2026-09-24
+
+- **Everything the plugin draws is on the page.** All four passes run from the
+  plugin's own GLSL — copy, wall, sensor, demosaic — and the CPU half is small
+  enough to port whole: the control conversions, the wall's cabinet count and
+  origin, the per-row exposure windows in double and their `split()` into a float
+  whole and fraction (`Math.fround` is the `static_cast< float >`), and the
+  frame-period smoothing that turns host frames into camera frames. That port is
+  checked by nobody but a reader; `demo/tools/check_shaders.py` only sees the GLSL.
+- **The wall's format is the one forced difference.** The plugin keeps it RGBA32F
+  and samples it through a mip chain with `LINEAR_MIPMAP_LINEAR`. WebGL2 can only
+  filter a 32-bit float texture with `OES_texture_float_linear`, and without it the
+  texture is incomplete and samples black — a plausible dead wall, the worst kind of
+  wrong. Decided: RGBA32F where the browser can filter it, RGBA16F where it cannot,
+  and a line under the picture saying which. Desktop Chrome has the extension; many
+  phones do not.
+- **The integer controls are sliders** (Cabinet W/H, Module Rows, Grey Bits, Fault
+  Seed), each a 0..1 slider over the plugin's own integer range that shows the
+  integer. Shunt's shape, not galvo's dropdowns: a 249-entry dropdown for Cabinet W
+  is not a control.
+- **The clock is the page's.** The unit voting has nothing to decide in a browser
+  and is absent; the frame-period estimate is ported as it stands, so the bands
+  stand or crawl at the display's real frame rate, and Pause freezes them.
+- **Presets are the page's own**, disclosed as such; the plugin ships none.
+- Verified 2026-09-24 in headless Chrome (Metal): renders, no console errors and no
+  WebGL warnings, and moving Camera Scale or Fault Rate with the transport paused
+  changes the picture (27–99% of pixels).

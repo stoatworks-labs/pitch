@@ -113,6 +113,20 @@ so the footage is rendered by this repository's own offline harness
 (`pitest --pipe`, driven by a cue sheet) rather than filmed off a screen, and
 the clips are Resolume's bundled demo media.*
 
+## Try it in your browser
+
+**<https://pitch-demo.stoatworks-labs.com>**
+
+Not the plugin — the five shaders from `source/Shaders.cpp`, copied across unedited and
+run in WebGL2, with the plugin's own controls, groups and defaults. The small CPU half
+(the control conversions, the wall's cabinet count and origin, the per-row exposure
+windows in PWM sub-periods, the frame-period estimate) is a hand port to JavaScript
+that nothing but a reader checks; `demo/tools/check_shaders.py`, run by
+`tools/verify.sh`, fails if a character of the shaders drifts. The integer controls are
+sliders there, the host-clock unit voting is absent, and a browser that cannot filter a
+32-bit float texture keeps the wall at RGBA16F and says so. The page lists every
+difference at its foot.
+
 ## Controls
 
 | Group | |
@@ -166,7 +180,9 @@ rendered and measured offline against the real plugin class in a headless CGL co
 plus an `oxbow` load. How the controls present in Arena's inspector on macOS, whether
 the integer cabinet fields type sensibly, and what the host's clock does to the band
 phase over a long session are all untested. Nothing has been through a show. No
-OpenFX port and no browser demo, neither in scope for 0.1.0.
+OpenFX port (not in scope for 0.1.0). The
+[browser demo](https://pitch-demo.stoatworks-labs.com) runs the plugin's own shaders, but its
+small CPU half is a hand port that only a reader checks.
 
 **Windows, in Resolume Arena 7.27.1** (win-lab, Mesa llvmpipe, no GPU, 2026-09-23):
 a CI build of this source loads from Extra Effects, registers as `SW Pitch` / `PI01` /

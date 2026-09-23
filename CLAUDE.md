@@ -75,7 +75,7 @@ Read `AGENTS.md` before changing the sensor pass, the row table or the drive mod
 - **Never loaded into Resolume on macOS.** Everything numeric is measured offline on
   macOS, plus an `oxbow` load. The Windows CI build passed the Arena gate 9/9 on
   win-lab (Arena 7.27.1, llvmpipe) on 2026-09-23.
-- No OpenFX port, no browser demo, no factory presets. The user guide is
+- No OpenFX port, no factory presets. The browser demo is below. The user guide is
   `docs/USER-GUIDE.md`; every claim in it is read from the code, so change both together.
 - `StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies; `guide` is set
   to the fleet URL so the About button count is final at v0.1.0.
@@ -86,3 +86,25 @@ Read `AGENTS.md` before changing the sensor pass, the row table or the drive mod
 
     ~/Library/Logs/pitch/pitch.YYYY-MM-DD.log        (macOS)
     %LOCALAPPDATA%\pitch\logs\pitch.YYYY-MM-DD.log   (Windows)
+
+## Browser demo
+
+`demo/` is a static page at **pitch-demo.stoatworks-labs.com**, deployed by
+`cf-run npx wrangler deploy` from the repo root (`wrangler.toml`, a
+static-assets-only Worker — no build step, no Pages, no `_redirects`).
+
+- `demo/vendor/` is vendored from
+  `infrastructure/stoatworks-backend/resolume-demo/kit/` and is **not** a place
+  to edit. Re-sync with
+  `~/Projects/infrastructure/stoatworks-backend/resolume-demo/sync.sh pitch`
+  and confirm it says `synced pitch` rather than skipping.
+- The five shader constants in `demo/plugin.js` are `source/Shaders.cpp`
+  verbatim, and `demo/tools/check_shaders.py` (run by `verify.sh`) fails on a
+  single character of drift.
+- **Everything else in `demo/plugin.js` is a hand port** of `Controls.cpp`,
+  `drive::greyLevels`, and the wall/row-window/`split()`/frame-period half of
+  `Pitch::ProcessOpenGL`, and **nothing checks it but a reader.** Change the
+  row-window arithmetic in C++ and it has to be changed there too.
+- Absent from the page and said so on it: the host-clock unit voting and the
+  About block. The five FF_TYPE_INTEGER controls are 0..1 sliders over the
+  plugin's own ranges. No audio caveat — Pitch has no audio path.
