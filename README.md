@@ -114,9 +114,9 @@ universal Release build, running every check at **two rasters**, 320×180 and
 | the bundle | universal (`x86_64 arm64`), exports `plugMain`, ad-hoc signs; `oxbow` reports `SW Pitch` / `PI01` / `effect` and renders 120 frames through `plugMain` |
 
 Render cost at the defaults (Bayer on), best of three runs of 60 frames after a
-warm-up, `glFinish` both sides, on a GPU shared with other work: **0.59 ms** at
-720p, **1.27 ms** at 1080p, **2.34 ms** at 1440p, **5.41 ms** at 4K — a third of a
-60 fps frame at 4K. Rotation costs nine boxes per pixel instead of one, and Focus
+warm-up, `glFinish` both sides, on a GPU shared with other work: **0.74 ms** at
+720p, **1.29 ms** at 1080p, **2.11 ms** at 1440p, **4.91 ms** at 4K — three tenths
+of a 60 fps frame at 4K. Rotation costs nine boxes per pixel instead of one, and Focus
 thirty-two disc taps per box; both are off by default. macOS figures only.
 
 ### Not established

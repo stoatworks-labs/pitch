@@ -306,14 +306,17 @@ by hand.
 
   | | ms/frame | % of a 60fps frame |
   | --- | --- | --- |
-  | 1280×720 | 0.59 | 3.5% |
-  | 1920×1080 | 1.27 | 7.6% |
-  | 2560×1440 | 2.34 | 14.0% |
-  | 3840×2160 | 5.41 | 32.5% |
+  | 1280×720 | 0.74 | 4.4% |
+  | 1920×1080 | 1.29 | 7.7% |
+  | 2560×1440 | 2.11 | 12.7% |
+  | 3840×2160 | 4.91 | 29.5% |
 
   Heavier than readout (2.3 ms at 4K): the sensor pass walks up to four LEDs per
   pixel with a closed-form overlap per channel each, then the demosaic reads nine
-  texels. A third of a 4K frame is real; an operator stacking effects will feel it.
+  texels. Three tenths of a 4K frame is real; an operator stacking effects will
+  feel it. Runs minutes apart on this shared GPU moved the 4K figure between 4.9
+  and 5.4 ms; the table is the `verify.sh` run that the rest of this section
+  reports.
 
 ### Assumed, or not done
 
