@@ -296,7 +296,7 @@ by hand.
 - **Mutation.** `( i1 - i0 ) * w` → `( i1 + i0 ) * w` in the shipped overlap:
   caught by `--identity`, `--bands`, `--pwm`, `--energy`; `--moire` passed, which is
   right — it runs at a whole-period shutter and does not depend on the drive.
-- **No dead controls**, all 26, with the four About buttons skipped.
+- **No dead controls**, all 26, with the About block's text and four buttons skipped.
 - **Every shader compiles** through `glslc`.
 - **The bundle** is universal, exports `_plugMain`, carries `com.stoatworks.ffgl.pitch`,
   ad-hoc signs, and `oxbow` reports `SW Pitch` / `PI01` / `effect` and renders 120
@@ -338,10 +338,13 @@ by hand.
   The moiré check measures what it does (0.0099 residual against an ideal 0.037 ×
   0.126 = 0.0047), not what a jinc would.
 - **No OpenFX port and no browser demo.** Not required for 0.1.0.
-- **`StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies** with
-  `guide=""`, in the shape the fleet's syncs generate; register the project and
-  re-run the syncs before the first release. The About facts were chosen so the
-  button count — and so the parameter count — does not change when regenerated.
+- **`StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies**, in
+  the shape the fleet's syncs generate; register the project and re-run the syncs
+  before the first release. `guide` was set to
+  `stoatworks-labs.com/software/pitch/guide/` when `docs/USER-GUIDE.md` was written,
+  so the About block has its four buttons now and the parameter count does not
+  change when the header is regenerated. That URL, like `page`, does not resolve
+  until the site registers the project.
 - **Nothing has been through a show.**
 
 ---

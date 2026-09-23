@@ -74,8 +74,10 @@ Read `AGENTS.md` before changing the sensor pass, the row table or the drive mod
 ## Not done yet
 - **Never loaded into Resolume.** Everything numeric is measured offline on macOS,
   plus an `oxbow` load. The Windows build is CI-only and has never run.
-- No user guide, no OpenFX port, no browser demo, no factory presets.
-- `StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies with `guide=""`.
+- No OpenFX port, no browser demo, no factory presets. The user guide is
+  `docs/USER-GUIDE.md`; every claim in it is read from the code, so change both together.
+- `StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies; `guide` is set
+  to the fleet URL so the About button count is final at v0.1.0.
 
 ## Diagnostics
 

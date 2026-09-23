@@ -127,7 +127,9 @@ CGL context, plus an `oxbow` load. How 26 controls in five groups present in
 Arena's inspector, whether the integer cabinet fields type sensibly, and what the
 host's clock does to the band phase over a long session are all untested. The
 Windows build is CI-only and has never run. Nothing has been through a show. No
-OpenFX port and no browser demo, neither in scope for 0.1.0. No user guide.
+OpenFX port and no browser demo, neither in scope for 0.1.0.
+
+The [user guide](docs/USER-GUIDE.md) covers every control, what it does and why.
 
 ## Build
 

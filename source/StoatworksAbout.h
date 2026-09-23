@@ -7,10 +7,10 @@
  * cannot produce this file. Once it is registered the sync overwrites this
  * file; edit it there, not here.
  *
- * `guide` is empty on purpose: no user guide exists, and an empty link is left
- * out of the button list rather than shown as a button that opens a 404. The
- * facts were chosen so the button count -- and therefore the parameter count --
- * does not change when this is regenerated.
+ * `guide` is the fleet's guide URL for this slug, set by hand when
+ * docs/USER-GUIDE.md was written, so the regenerated file carries the same four
+ * buttons and the parameter count does not change after v0.1.0. An empty link
+ * would drop the button and shift every parameter after it.
  *
  * `version` here is a fallback read from this repo's own manifest at sync
  * time. Anything with a build step injects the real one at build time and
@@ -24,7 +24,7 @@ namespace stoatworks::about
     inline constexpr auto slug = "pitch";
     inline constexpr auto hook = "An LED wall seen through a camera, for Resolume";
     inline constexpr auto licence = "MIT";
-    inline constexpr auto guide = "";
+    inline constexpr auto guide = "https://stoatworks-labs.com/software/pitch/guide/";
     inline constexpr auto page = "https://stoatworks-labs.com/software/pitch/";
     inline constexpr auto repo = "https://github.com/stoatworks-labs/pitch";
     inline constexpr auto versionFallback = "v0.1.0";
