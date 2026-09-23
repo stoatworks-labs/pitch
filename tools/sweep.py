@@ -71,6 +71,11 @@ CONTEXT = {
     "Module Rows": {"Fault Rate": 1.0, "Dead Row": 1.0, "Dead": 0.0, "Dim": 0.0, "Bin Shift": 0.0},
     # A phase of one whole refresh period IS a phase of zero.
     "Refresh Phase": {"_high": 0.5},
+    # Each kind strikes a cabinet with probability Fault Rate x its amount, so
+    # at the default amounts a wall of one or two cabinets (CI sweeps at
+    # 160x90) can draw no fault at all at Fault Rate 1 for seed 1. Dead at 1
+    # makes every cabinet dead at the top of the sweep, at any raster.
+    "Fault Rate": {"Dead": 1.0},
     "Dead": FAULTS,
     "Dim": FAULTS,
     "Dead Row": FAULTS,
