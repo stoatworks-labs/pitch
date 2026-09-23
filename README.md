@@ -105,6 +105,14 @@ pixel's footprint is approximated by nine axis-aligned boxes rather than one rot
 square. And a pixel that holds more than three LEDs a side reads a prefiltered mean
 instead of walking every emitter, which is what a real lens would have done anyway.
 
+[![Pitch — an LED wall seen through a camera, for Resolume](docs/video-thumb.png)](https://www.youtube.com/watch?v=FOQa3280HJ8)
+
+*[Watch it](https://www.youtube.com/watch?v=FOQa3280HJ8) — 53 seconds:
+black opening up between the LEDs, moiré swimming as the camera backs off and dying under Focus, scan bands standing at 60 fps and crawling at 59.94, a whole-period shutter clearing them, Scrambled PWM taking the low-grey bands away, and a seeded bad day of dead cabinets. Every frame is the real plugin's output: an FFGL plugin has no window,
+so the footage is rendered by this repository's own offline harness
+(`pitest --pipe`, driven by a cue sheet) rather than filmed off a screen, and
+the clips are Resolume's bundled demo media.*
+
 ## Controls
 
 | Group | |
