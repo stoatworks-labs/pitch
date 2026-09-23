@@ -10,9 +10,9 @@
 > light to float precision, a dead cabinet is exactly black and exactly aligned,
 > and the neutral settings return the input byte for byte — with negative controls
 > that prove a detuned overlap integral and a swapped Bayer phase are caught. It
-> has **never been loaded into Resolume**. It is loaded by
-> [oxbow](https://github.com/stoatworks-labs/oxbow), which is a real FFGL host and
-> is not Resolume. See [Status](#status).
+> has **never been loaded into Resolume on macOS**. On Windows, a build of v0.1.0
+> loads, registers and renders in Resolume Arena 7.27.1 with every control as
+> declared, on software rendering. See [Status](#status).
 
 An LED wall seen through a camera, as an FFGL effect for [Resolume](https://resolume.com)
 Arena and Avenue.
@@ -22,6 +22,38 @@ Arena and Avenue.
 <sub>One frame, rendered by `pitest`, the offline harness — not captured from Resolume.
 A 1.25-pixel-pitch wall at 0.8 LEDs per sensor pixel, one degree off square, 1/4
 scan through a 1/1600 shutter, with a fifth of the cabinets faulted.</sub>
+
+<!-- downloads:start -->
+
+## Download
+
+**[v0.1.0](https://github.com/stoatworks-labs/pitch/releases/tag/v0.1.0)** — prebuilt for macOS and Windows. Pick your platform:
+
+<details>
+<summary><b>macOS</b> — Universal (Apple Silicon + Intel)</summary>
+
+| Build | Download | Size |
+| --- | --- | --- |
+| Universal (Apple Silicon + Intel) · .dmg disk image | [`pitch-0.1.0-macos-universal.dmg`](https://github.com/stoatworks-labs/pitch/releases/download/v0.1.0/pitch-0.1.0-macos-universal.dmg) | 216 KB |
+| Universal (Apple Silicon + Intel) · .zip archive | [`pitch-macos-universal.zip`](https://github.com/stoatworks-labs/pitch/releases/latest/download/pitch-macos-universal.zip) | 179 KB |
+
+</details>
+
+<details>
+<summary><b>Windows</b> — x64</summary>
+
+| Build | Download | Size |
+| --- | --- | --- |
+| x64 · .exe installer | [`pitch-0.1.0-windows-x86_64-setup.exe`](https://github.com/stoatworks-labs/pitch/releases/download/v0.1.0/pitch-0.1.0-windows-x86_64-setup.exe) | 222 KB |
+| x64 · .zip archive | [`pitch-windows-x86_64.zip`](https://github.com/stoatworks-labs/pitch/releases/latest/download/pitch-windows-x86_64.zip) | 114 KB |
+
+</details>
+
+All builds, checksums and release notes: [github.com/stoatworks-labs/pitch/releases](https://github.com/stoatworks-labs/pitch/releases).
+
+macOS builds are signed and notarised and open normally. The Windows builds are unsigned, so SmartScreen warns once.
+
+<!-- downloads:end -->
 
 ## The one idea
 
@@ -121,13 +153,22 @@ thirty-two disc taps per box; both are off by default. macOS figures only.
 
 ### Not established
 
-It has **never been loaded into Resolume**, on either platform. Everything above was
-compiled, rendered and measured offline against the real plugin class in a headless
-CGL context, plus an `oxbow` load. How 26 controls in five groups present in
-Arena's inspector, whether the integer cabinet fields type sensibly, and what the
-host's clock does to the band phase over a long session are all untested. The
-Windows build is CI-only and has never run. Nothing has been through a show. No
+It has **never been loaded into Resolume on macOS**. Everything above was compiled,
+rendered and measured offline against the real plugin class in a headless CGL context,
+plus an `oxbow` load. How the controls present in Arena's inspector on macOS, whether
+the integer cabinet fields type sensibly, and what the host's clock does to the band
+phase over a long session are all untested. Nothing has been through a show. No
 OpenFX port and no browser demo, neither in scope for 0.1.0.
+
+**Windows, in Resolume Arena 7.27.1** (win-lab, Mesa llvmpipe, no GPU, 2026-09-23):
+a CI build of this source loads from Extra Effects, registers as `SW Pitch` / `PI01` /
+effect, all 32 host controls match the declaration in name, order, type, range and
+default, it renders, and Arena's log stays clean: 9 of 9 of the fleet gate's checks.
+20 controls moved the picture; 7 were inconclusive (Scan Ratio, Grey Bits, Refresh
+Phase, Readout, Frame Rate, Module Rows, Dead Row), because the gate compares single
+frames of a still picture and those act on the time-varying scan bands or on one row
+per cabinet; `tools/sweep.py` proves all of them live. Software rendering says nothing
+about a GPU or about speed.
 
 The [user guide](docs/USER-GUIDE.md) covers every control, what it does and why.
 

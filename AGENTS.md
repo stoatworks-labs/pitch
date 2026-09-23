@@ -320,13 +320,15 @@ by hand.
 
 ### Assumed, or not done
 
-- ☠️ **Never loaded into Resolume**, on either platform. Everything was compiled,
+- ☠️ **Never loaded into Resolume on macOS.** On Windows, v0.1.0's CI build passed the
+  fleet Arena gate 9/9 in Arena 7.27.1 on llvmpipe (2026-09-23; 7 time-varying controls
+  inconclusive on the gate's still picture). Otherwise everything was compiled,
   rendered and measured offline against the real plugin class in a headless CGL
   context, plus an `oxbow` load. The inspector presentation of 26 controls in five
   groups, the integer fields, and the host's real clock are all untested.
 - **The clock-unit voting has only seen the harness's seconds.** It is readout's
-  code, which has met Arena, but this plugin has not.
-- **The Windows build is CI-only** and CI cannot run yet.
+  code, which has met Arena; this plugin has met it only on Windows, for one gate run.
+- **The Windows build is CI-built** and has run only in the Arena gate on win-lab.
 - **Not verified at 4K**, only benchmarked there.
 - **No resize-mid-run check.** The plugin holds no state across frames beyond the
   scalar clock, so there is nothing a resize could carry over wrongly; the buffers

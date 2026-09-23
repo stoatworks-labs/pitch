@@ -72,8 +72,9 @@ Read `AGENTS.md` before changing the sensor pass, the row table or the drive mod
 - FFGL id is `PI01`, display name `SW Pitch`.
 
 ## Not done yet
-- **Never loaded into Resolume.** Everything numeric is measured offline on macOS,
-  plus an `oxbow` load. The Windows build is CI-only and has never run.
+- **Never loaded into Resolume on macOS.** Everything numeric is measured offline on
+  macOS, plus an `oxbow` load. The Windows CI build passed the Arena gate 9/9 on
+  win-lab (Arena 7.27.1, llvmpipe) on 2026-09-23.
 - No OpenFX port, no browser demo, no factory presets. The user guide is
   `docs/USER-GUIDE.md`; every claim in it is read from the code, so change both together.
 - `StoatworksAbout.h` and `ATTRIBUTIONS.md` are provisional hand copies; `guide` is set
