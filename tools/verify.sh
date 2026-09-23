@@ -27,6 +27,8 @@
 #                   --bayer     the mosaic samples each colour where it says
 #                   --negative  the checks can FAIL: a detuned overlap and a
 #                               swapped mosaic phase are caught
+#   pipe          the fleet's --pipe frame format: a partial frame at EOF is
+#                 the end of the stream, and a cue naming no control is refused.
 #   sweep         does every control change the picture. A GLSL uniform whose
 #                 name does not match the C++ is ignored without a word.
 #   bench         the render cost, for the record. Not pass/fail.
@@ -154,6 +156,35 @@ for size in 320x180 1280x720; do
 		fi
 	done
 done
+
+#---------------------------------------------------------------------------
+# --pipe, in the fleet's frame format. Two and a half frames in must be exactly
+# two frames out and a clean exit -- a partial frame is the end of the stream,
+# never a frame -- and a cue naming no parameter must be refused rather than
+# silently doing nothing to a take.
+#---------------------------------------------------------------------------
+step "pipe"
+frame=$(( 64 * 36 * 4 ))
+raw=$( mktemp ); cues=$( mktemp )
+head -c $(( frame * 5 / 2 )) /dev/zero > "$raw"
+got=$( "$PITEST" --pipe --size 64x36 < "$raw" 2>/dev/null | wc -c | tr -d ' ' )
+status=${PIPESTATUS[0]}
+if [ "$status" -eq 0 ] && [ "$got" = "$(( frame * 2 ))" ]; then
+	pass "2.5 frames in, exactly 2 frames out, clean exit"
+else
+	fail "2.5 frames in gave $got bytes out (want $(( frame * 2 ))), exit $status"
+fi
+# Read from a file, not a pipe: a writer killed by SIGPIPE would fail the
+# pipeline whatever pitest did, and the refusal would pass for the wrong reason.
+printf '0 No Such Control 0.5\n' > "$cues"
+"$PITEST" --pipe --size 64x36 --script "$cues" < "$raw" >/dev/null 2>&1
+status=$?
+if [ "$status" -eq 2 ]; then
+	pass "a cue naming no parameter is refused (exit 2)"
+else
+	fail "a cue naming no parameter gave exit $status, not 2"
+fi
+rm -f "$raw" "$cues"
 
 step "sweep"
 if out=$(python3 tools/sweep.py --binary "$PITEST" 2>/dev/null); then

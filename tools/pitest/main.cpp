@@ -1733,6 +1733,7 @@ int main( int argc, char** argv )
 		}
 
 		std::vector< unsigned char > frame( static_cast< size_t >( width ) * height * 4 );
+		int status = 0;
 		for( int index = 0;; ++index )
 		{
 			size_t got = 0;
@@ -1743,14 +1744,22 @@ int main( int argc, char** argv )
 					break;
 				got += static_cast< size_t >( n );
 			}
+			//A partial frame at the end of a pipe is the end of the stream,
+			//not a frame to render: the stream ends cleanly, and only whole
+			//frames ever come out.
 			if( got < frame.size() )
 				break;
 
+			//Through the plugin's own setter, so a cue moves the same thing an
+			//operator's slider would.
 			for( const auto& track : automation )
 				session.plugin.SetFloatParameter( track.first, valueAt( track.second, index ) );
 
 			if( !session.render( index, frame ) )
+			{
+				status = 1;
 				break;
+			}
 
 			const std::vector< unsigned char > out = session.readBack();
 			size_t written                         = 0;
@@ -1761,10 +1770,18 @@ int main( int argc, char** argv )
 					break;
 				written += static_cast< size_t >( put );
 			}
+			//The reader has gone. Rendering on into a closed pipe is work
+			//nobody will see, and a short frame on stdout is worse than none.
+			if( written < out.size() )
+			{
+				std::fprintf( stderr, "stdout closed at frame %d\n", index );
+				status = 1;
+				break;
+			}
 		}
 
 		session.end();
-		return finish( 0 );
+		return finish( status );
 	}
 
 	const Source source = sourceFromName( sourceName );

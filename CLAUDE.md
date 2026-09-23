@@ -20,6 +20,12 @@ Read `AGENTS.md` before changing the sensor pass, the row table or the drive mod
 - Footage through the real shaders — **`--pipe`**, raw RGBA frames in, raw RGBA frames
   out, with `--size WxH` and an optional `--script` of timed `frame Name Value` cues:
   `ffmpeg … -f rawvideo -pix_fmt rgba - | ./build/pitest --pipe --size 1920x1080 [--script cues.txt] | ffmpeg …`
+  A cue line is `frame  Parameter Name  value` (`#` starts a comment), in the same
+  units as `--set`. Values interpolate linearly between a name's cues and hold
+  before the first and after the last, so a step needs two cues a frame apart —
+  an option index interpolated is a different option on the way. Frame *n* is
+  clocked at `n / --fps` (default 60). An unknown name exits 2 before any frame; a
+  partial frame at EOF ends the stream with exit 0.
 
 ## Verify
 - Everything: `tools/verify.sh` (fresh universal build + every check at 320x180 AND
@@ -33,6 +39,8 @@ Read `AGENTS.md` before changing the sensor pass, the row table or the drive mod
 - The mosaic samples each colour where it says: `./build/pitest --bayer`
 - The checks can fail: `./build/pitest --negative`
 - Every check takes `--size WxH`; CI runs them at 320x180
+- `--pipe` keeps the fleet frame format: `tools/verify.sh` feeds it 2.5 frames and wants
+  exactly 2 back, and feeds it a cue naming no control and wants exit 2
 - No dead controls: `python3 tools/sweep.py` (`--size WxH`, `--jobs N`)
 - Render cost: `./build/pitest --bench` (best of three; the GPU here is shared)
 - What a host sees: `../oxbow/build/oxbow probe build-universal/Pitch.bundle`
