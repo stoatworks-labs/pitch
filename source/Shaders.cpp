@@ -208,7 +208,7 @@ uniform float Scale;          //LEDs per sensor pixel
 uniform float CosR;           //rotation of the sensor grid over the wall
 uniform float SinR;
 uniform int SubDiv;           //boxes per pixel per axis: 1 exact, 3 under rotation
-uniform int Olpf;             //1: four copies a quarter pixel apart
+uniform int Olpf;             //1: four copies one pixel pitch apart
 uniform float FocusRadius;    //blur-disc radius, sensor pixels; 0 for none
 uniform int FocusTaps;        //taps on the disc; 1 when FocusRadius is 0
 
@@ -362,8 +362,14 @@ void main()
 		vec2 focusOffset = FocusRadius > 0.0 ? discTap( t, FocusTaps ) * FocusRadius : vec2( 0.0 );
 		for( int c = 0; c < copies; ++c )
 		{
-			//A four-spot birefringent filter: four copies a half pixel apart.
-			vec2 olpfOffset = Olpf == 1 ? vec2( ( c & 1 ) == 0 ? -0.25 : 0.25, ( c & 2 ) == 0 ? -0.25 : 0.25 ) : vec2( 0.0 );
+			//A four-spot birefringent filter: four copies one pixel pitch
+			//apart, which puts the filter's first null at the Nyquist
+			//frequency. A quarter-pixel version was tried first and was
+			//EXACTLY invisible at four pixels per LED: averaging a box
+			//integral over shifts smaller than the distance from an emitter
+			//edge to the box's own edge is linear, and linear averages to the
+			//unshifted value.
+			vec2 olpfOffset = Olpf == 1 ? vec2( ( c & 1 ) == 0 ? -0.5 : 0.5, ( c & 2 ) == 0 ? -0.5 : 0.5 ) : vec2( 0.0 );
 			for( int sy = 0; sy < SubDiv; ++sy )
 			{
 				for( int sx = 0; sx < SubDiv; ++sx )

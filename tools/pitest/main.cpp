@@ -1401,16 +1401,24 @@ double benchAt( Pitch& plugin, int width, int height, int frames, double fps )
 		session.render( frame, card );
 	glFinish();
 
-	const auto start = std::chrono::steady_clock::now();
-	for( int frame = 0; frame < frames; ++frame )
-		session.render( warmup + frame, card );
-	glFinish();
-	const auto end = std::chrono::steady_clock::now();
+	//The best of three runs. This machine's GPU is shared with whatever else
+	//is rendering, and a run that lost the GPU for a few milliseconds measures
+	//the contention, not the plugin; the minimum is the one nothing else
+	//interrupted.
+	double best = 1e9;
+	for( int run = 0; run < 3; ++run )
+	{
+		const auto start = std::chrono::steady_clock::now();
+		for( int frame = 0; frame < frames; ++frame )
+			session.render( warmup + run * frames + frame, card );
+		glFinish();
+		const auto end       = std::chrono::steady_clock::now();
+		const double seconds = std::chrono::duration< double >( end - start ).count();
+		best                 = std::min( best, seconds * 1000.0 / static_cast< double >( frames ) );
+	}
 
 	session.end();
-
-	const double seconds = std::chrono::duration< double >( end - start ).count();
-	return seconds * 1000.0 / static_cast< double >( frames );
+	return best;
 }
 
 int runBench( Pitch& plugin, int frames, double fps )
@@ -1427,7 +1435,7 @@ int runBench( Pitch& plugin, int frames, double fps )
 		{ "3840x2160 ", 3840, 2160 },
 	};
 
-	std::printf( "%d frames each, after a 20-frame warm-up, glFinish both sides.\n\n", frames );
+	std::printf( "%d frames each, best of three runs, after a 20-frame warm-up, glFinish both sides.\n\n", frames );
 	std::printf( "resolution     ms/frame   equivalent fps   %% of a 60fps frame\n" );
 
 	for( const Size& size : sizes )
