@@ -381,7 +381,10 @@ sizes if they could not be allocated, with the advice to try a larger Pitch.
 - **The host clock handling has only met the harness's clock.** It is the same code as the
   fleet's readout effect, which has met Arena. This effect has not.
 - **Not verified at 4K**, only timed there.
-- **No presets**, no OpenFX version and no browser demo.
+- **No presets** and no OpenFX version.
+- **There is a browser demo** at [pitch-demo.stoatworks-labs.com](https://pitch-demo.stoatworks-labs.com).
+  It is a port to a web page, not the plugin: the shaders run in WebGL2 and any CPU
+  half is rewritten in JavaScript. The page lists what it does not reproduce.
 
 ---
 
