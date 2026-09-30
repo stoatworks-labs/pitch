@@ -66,7 +66,7 @@ jobs:
         timeout-minutes: 25
         run: python3 tools/sweep.py --size 160x90 --jobs 2
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: pitch-macos-arm64
           path: build/*.bundle
@@ -93,7 +93,7 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: pitch-windows-x86_64
           path: build/Release/*.dll
