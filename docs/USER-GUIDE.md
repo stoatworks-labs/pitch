@@ -25,7 +25,7 @@ square, 1/4 scan through a 1/1600 shutter, with a fifth of the cabinets faulted.
 > 0.019 under Scrambled PWM. The optics conserve light to 2.6e-8, a dead cabinet is exactly black
 > and exactly cabinet-aligned, and the neutral settings return the input with 0/255 deviation.
 > All 26 controls measurably change the picture. It's **never been loaded into Resolume on
-> macOS**. The one host it's run in is the fleet's own test host, `oxbow`, for 120 frames.
+> macOS**. On a Mac the only host it's run in is the fleet's own test host, `oxbow`, for 120 frames.
 > On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1, with every
 > control matching what the plugin declares, but that's on software rendering, so it says nothing
 > about a GPU. Seven controls that act on the moving scan bands or on one row per cabinet (Scan
@@ -373,9 +373,9 @@ sizes if they couldn't be allocated, with the advice to try a larger Pitch.
 
 ## Known limits
 
-- **Never loaded into Resolume on macOS**, and nothing has driven the controls in a host. I
-  haven't tested how 26 controls in five groups read in the inspector, how the integer cabinet
-  fields type, or what a long session's clock does to the band phase.
+- **Never loaded into Resolume on macOS**, and on a Mac nothing has driven the controls in a
+  host. I haven't tested how 26 controls in five groups read in the inspector there, how the
+  integer cabinet fields type, or what a long session's clock does to the band phase.
 - **No gamma on the wall.** The PWM is driven by the clip's code values directly. A real
   processor applies a gamma first, so a real wall's dark pulses are shorter still and its
   low-grey breakup is worse than shown here.
