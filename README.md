@@ -1,27 +1,24 @@
 # pitch
 
 > **AI-assisted project.** This codebase was created with [Claude](https://claude.com/claude-code)
-> (Anthropic), directed and reviewed by a human author. The physics is not asserted
-> but measured: an offline harness drives the real plugin class in a headless GL
-> context and checks each claim against its closed form — the moiré fringe period
-> is `1 / |s − round(s)|` pixels by DFT, the scan-band period is `P / (Tr / H)` rows
-> and a shutter of whole refresh periods leaves no band at all, the band depth
-> follows the closed-form overlap and is worst at low grey, the optics conserve
-> light to float precision, a dead cabinet is exactly black and exactly aligned,
-> and the neutral settings return the input byte for byte — with negative controls
-> that prove a detuned overlap integral and a swapped Bayer phase are caught. It
-> has **never been loaded into Resolume on macOS**. On Windows, a build of v0.1.0
-> loads, registers and renders in Resolume Arena 7.27.1 with every control as
-> declared, on software rendering. See [Status](#status).
+> (Anthropic), directed and reviewed by a human author. The physics is measured rather than
+> taken on trust: an offline harness drives the real plugin class without a host and checks each
+> effect (the moiré, the scan bands, low-grey breakup, the optics, dead cabinets and the neutral
+> settings) against its closed form, and broken versions of the model are there to prove the
+> checks can fail. It has **never been loaded into Resolume on macOS**. On Windows, a build of
+> v0.1.0 loads, registers and renders in Resolume Arena 7.27.1 with every control as declared,
+> on software rendering. See [Status](#status).
 
 An LED wall seen through a camera, as an FFGL effect for [Resolume](https://resolume.com)
-Arena and Avenue.
+Arena and Avenue. It gives you the moiré, the scan bands, the low-grey breakup and the dead
+cabinets that you'd normally spend the camera check trying to get rid of, only this time on
+purpose.
 
 ![A test card on an LED wall photographed through a rolling-shutter camera: fine coloured moiré, horizontal scan bands, and cabinets that are dead, dim or missing a row](docs/hero.png)
 
-<sub>One frame, rendered by `pitest`, the offline harness — not captured from Resolume.
-A 1.25-pixel-pitch wall at 0.8 LEDs per sensor pixel, one degree off square, 1/4
-scan through a 1/1600 shutter, with a fifth of the cabinets faulted.</sub>
+<sub>One frame, rendered by `pitest`, the offline harness, rather than captured from
+Resolume: a 1.25-pixel-pitch wall at 0.8 LEDs per sensor pixel, one degree off square,
+1/4 scan through a 1/1600 shutter, with a fifth of the cabinets faulted.</sub>
 
 <!-- downloads:start -->
 
@@ -57,7 +54,7 @@ macOS builds are signed and notarised and open normally. The Windows builds are 
 
 ## The one idea
 
-Every IMAG camera pointed at an LED wall samples a grid with a grid — twice.
+Every IMAG camera pointed at an LED wall samples a grid with a grid, and it does it twice.
 
 In **space**: the wall is a lattice of small emitters with black between them, and
 the sensor is a second lattice behind a Bayer mosaic. In **time**: the wall is lit
@@ -66,8 +63,8 @@ row integrates its own slice of that pulse train as the rolling shutter slides d
 the frame.
 
 So every pixel is a small box laid over the LED grid, and every row is a window laid
-over the pulse train. The plugin integrates both — analytically, not by sampling —
-and that is the whole plugin.
+over the pulse train. The plugin integrates both, analytically rather than by
+sampling, and that's the whole plugin.
 
 ## What falls out
 
@@ -75,13 +72,13 @@ None of these is drawn. Each is one of the two samplings applied to something:
 
 - **Moiré.** The LED lattice at *s* LEDs per pixel aliases against the pixel lattice
   to a fringe `1 / |s − round(s)|` pixels long. It swims when `Camera Scale` moves,
-  and it is coloured because the Bayer mosaic samples red and blue a pixel apart —
-  half a cycle, near Nyquist. `Focus` kills it, because a lens blurs *before* the
-  sensor samples, which is the only place a blur can remove aliasing.
+  and it's coloured because the Bayer mosaic samples red and blue a pixel apart
+  (half a cycle, near Nyquist). `Focus` kills it, because a lens blurs *before* the
+  sensor samples, and that's the only place a blur can remove aliasing.
 - **Scan bands.** Row *r* of *H* integrates from `r × Readout / H` for one `Shutter`.
   Against a pulse train of period *P* the rows band with a period of `P / (Readout / H)`
   rows. Set the shutter to a whole number of refresh periods and the band depth is
-  zero — the operator's rule, and here it is a theorem rather than a tip.
+  zero. That's the camera op's rule of thumb, and here it's a theorem rather than a tip.
 - **Low-grey breakup.** A dark level is a short pulse, and a short pulse is either
   caught or missed by a window, so the relative band depth is highest at low grey.
   `Scrambled` PWM spreads the same on-time over sixteen sub-periods and the depth
@@ -98,34 +95,36 @@ off is the identity, to the byte.
 
 The wall drives its PWM with the clip's code values. A real processor applies a
 gamma first, so a real wall's dark pulses are shorter still and its low-grey breakup
-worse than modelled here. The sensor integrates the LEDs exactly but the LEDs
-themselves are square emitters with hard edges; a real chip has a radiation pattern
-and the lens has an MTF beyond the disc modelled by `Focus`. Under `Rotation` the
+worse than modelled here. The sensor integrates the LEDs exactly, but the LEDs
+themselves are square emitters with hard edges, where a real chip has a radiation
+pattern and the lens has an MTF beyond the disc that `Focus` models. Under `Rotation` the
 pixel's footprint is approximated by nine axis-aligned boxes rather than one rotated
 square. And a pixel that holds more than three LEDs a side reads a prefiltered mean
 instead of walking every emitter, which is what a real lens would have done anyway.
 
 [![Pitch — an LED wall seen through a camera, for Resolume](docs/video-thumb.png)](https://www.youtube.com/watch?v=FOQa3280HJ8)
 
-*[Watch it](https://www.youtube.com/watch?v=FOQa3280HJ8) — 53 seconds:
-black opening up between the LEDs, moiré swimming as the camera backs off and dying under Focus, scan bands standing at 60 fps and crawling at 59.94, a whole-period shutter clearing them, Scrambled PWM taking the low-grey bands away, and a seeded bad day of dead cabinets. Every frame is the real plugin's output: an FFGL plugin has no window,
-so the footage is rendered by this repository's own offline harness
-(`pitest --pipe`, driven by a cue sheet) rather than filmed off a screen, and
-the clips are Resolume's bundled demo media.*
+*[Watch it](https://www.youtube.com/watch?v=FOQa3280HJ8) (53 seconds): black opening up
+between the LEDs, moiré swimming as the camera backs off and dying under Focus, scan bands
+standing at 60 fps and crawling at 59.94, a whole-period shutter clearing them, Scrambled PWM
+taking the low-grey bands away, and a seeded bad day of dead cabinets. It's all the plugin's
+own output. An FFGL plugin doesn't have a window to film, so the footage comes from this
+repo's offline harness (`pitest --pipe`, driven by a cue sheet) rather than a screen
+recording, and the clips are Resolume's bundled demo media.*
 
 ## Try it in your browser
 
 **<https://pitch-demo.stoatworks-labs.com>**
 
-Not the plugin — the five shaders from `source/Shaders.cpp`, copied across unedited and
-run in WebGL2, with the plugin's own controls, groups and defaults. The small CPU half
-(the control conversions, the wall's cabinet count and origin, the per-row exposure
-windows in PWM sub-periods, the frame-period estimate) is a hand port to JavaScript
-that nothing but a reader checks; `demo/tools/check_shaders.py`, run by
+This is the five shaders from `source/Shaders.cpp`, copied across unedited and run in
+WebGL2 with the plugin's own controls, groups and defaults, rather than the plugin itself.
+The small CPU half (the control conversions, the wall's cabinet count and origin, the
+per-row exposure windows in PWM sub-periods, the frame-period estimate) is a hand port to
+JavaScript that only a person reading it checks. `demo/tools/check_shaders.py`, run by
 `tools/verify.sh`, fails if a character of the shaders drifts. The integer controls are
-sliders there, the host-clock unit voting is absent, and a browser that cannot filter a
+sliders there, there's no host-clock unit voting, and a browser that can't filter a
 32-bit float texture keeps the wall at RGBA16F and says so. The page lists every
-difference at its foot.
+difference at the bottom.
 
 ## Controls
 
@@ -138,19 +137,19 @@ difference at its foot.
 | **Output** | Mix. |
 
 The wall is a whole number of cabinets, the nearest whole number to what the clip
-holds at the chosen pitch, centred on the clip. At the defaults — a 4-pixel pitch
-seen at a quarter of an LED per pixel — the wall fills the frame and the pixel
-structure shows; the moiré arrives the moment Camera Scale moves.
+holds at the chosen pitch, centred on the clip. At the defaults (a 4-pixel pitch
+seen at a quarter of an LED per pixel) the wall fills the frame and the pixel
+structure shows, and the moiré turns up the moment Camera Scale moves.
 
 ## Status
 
-**v0.1.0, and honestly early — 23 September 2026.**
+**v0.1.0, 23 September 2026, and still early days.**
 
 ### Measured offline, on macOS
 
-`tools/verify.sh` passes on this machine (M4 Max, macOS 26.4.1) against a fresh
+`tools/verify.sh` passes on this Mac (M4 Max, macOS 26.4.1) against a fresh
 universal Release build, running every check at **two rasters**, 320×180 and
-1280×720; the same checks also pass at 1920×1080. What it establishes, in numbers:
+1280×720, and the same checks pass at 1920×1080 too. Here's what it shows, in numbers:
 
 | check | result |
 | --- | --- |
@@ -169,32 +168,32 @@ universal Release build, running every check at **two rasters**, 320×180 and
 
 Render cost at the defaults (Bayer on), best of three runs of 60 frames after a
 warm-up, `glFinish` both sides, on a GPU shared with other work: **0.74 ms** at
-720p, **1.29 ms** at 1080p, **2.11 ms** at 1440p, **4.91 ms** at 4K — three tenths
-of a 60 fps frame at 4K. Rotation costs nine boxes per pixel instead of one, and Focus
+720p, **1.29 ms** at 1080p, **2.11 ms** at 1440p, **4.91 ms** at 4K, which is three
+tenths of a 60 fps frame at 4K. Rotation costs nine boxes per pixel instead of one, and Focus
 thirty-two disc taps per box; both are off by default. macOS figures only.
 
 ### Not established
 
-It has **never been loaded into Resolume on macOS**. Everything above was compiled,
+It's **never been loaded into Resolume on macOS**. Everything above was compiled,
 rendered and measured offline against the real plugin class in a headless CGL context,
-plus an `oxbow` load. How the controls present in Arena's inspector on macOS, whether
-the integer cabinet fields type sensibly, and what the host's clock does to the band
-phase over a long session are all untested. Nothing has been through a show. No
+plus an `oxbow` load. I haven't tested how the controls look in Arena's inspector on
+macOS, whether the integer cabinet fields type sensibly, or what the host's clock does
+to the band phase over a long session. It hasn't been through a show. There's no
 OpenFX port (not in scope for 0.1.0). The
 [browser demo](https://pitch-demo.stoatworks-labs.com) runs the plugin's own shaders, but its
-small CPU half is a hand port that only a reader checks.
+small CPU half is a hand port that only a person reading it checks.
 
 **Windows, in Resolume Arena 7.27.1** (win-lab, Mesa llvmpipe, no GPU, 2026-09-23):
 a CI build of this source loads from Extra Effects, registers as `SW Pitch` / `PI01` /
 effect, all 32 host controls match the declaration in name, order, type, range and
 default, it renders, and Arena's log stays clean: 9 of 9 of the fleet gate's checks.
-20 controls moved the picture; 7 were inconclusive (Scan Ratio, Grey Bits, Refresh
+20 controls moved the picture and 7 were inconclusive (Scan Ratio, Grey Bits, Refresh
 Phase, Readout, Frame Rate, Module Rows, Dead Row), because the gate compares single
 frames of a still picture and those act on the time-varying scan bands or on one row
-per cabinet; `tools/sweep.py` proves all of them live. Software rendering says nothing
-about a GPU or about speed.
+per cabinet. `tools/sweep.py` proves all of them are live. Software rendering says
+nothing about a GPU or about speed.
 
-The [user guide](docs/USER-GUIDE.md) covers every control, what it does and why.
+The [user guide](docs/USER-GUIDE.md) goes through every control, what it does and why.
 
 ## Build
 
@@ -213,8 +212,8 @@ macOS builds are universal (Apple Silicon + Intel) by default; add
 
 ## Building and testing
 
-The offline harness renders the real plugin class headlessly, on a synthetic 60 fps
-clock:
+The offline harness renders the real plugin class without a host, on a synthetic
+60 fps clock:
 
 ```bash
 ./build/pitest --out /tmp/frame.png --size 1920x1080   # the test card
@@ -227,7 +226,7 @@ python3 tools/sweep.py                                 # no control is silently 
 tools/verify.sh                                        # all of it, on a fresh universal build
 ```
 
-Every check takes `--size`; run it at 320×180 as well as the raster you care about.
+Every check takes `--size`, so run it at 320×180 as well as at the raster you care about.
 Footage goes through the real shaders with `--pipe`, in the fleet's frame format:
 
 ```bash

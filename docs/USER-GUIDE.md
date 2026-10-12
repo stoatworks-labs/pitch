@@ -1,11 +1,14 @@
 # Pitch user guide
 
 Pitch is **an LED wall seen through a camera, for [Resolume](https://resolume.com) Arena and
-Avenue**, as an FFGL effect. It does not paint moiré, scan lines or dead tiles onto a clip. It
-builds a wall of small emitters with black between them, lights it the way an LED processor
-does, one scan group at a time by pulse-width modulation, and then photographs that wall with a
-camera that has a rolling shutter and a Bayer sensor. Moiré, rolling bands, low-grey breakup and
-cabinet seams are all what those two samplings do. None of them is drawn.
+Avenue**, as an FFGL effect. It gives you the moiré, rolling bands, low-grey breakup and cabinet
+seams you get when a camera points at an LED wall, worked out from how the camera samples the
+wall rather than painted onto the clip.
+
+It builds a wall of small emitters with black between them, lights it the way an LED processor
+does (one scan group at a time, by pulse-width modulation), and then photographs that wall with
+a camera that has a rolling shutter and a Bayer sensor. Everything you see is what those two
+samplings do, and none of it is drawn. So for once the dead cabinets are on purpose.
 
 ![A test card on an LED wall photographed through a rolling-shutter camera: fine coloured moiré, horizontal scan bands, and cabinets that are dead, dim or missing a row](hero.png)
 
@@ -13,17 +16,21 @@ cabinet seams are all what those two samplings do. None of them is drawn.
 captured from Resolume. A 1.25-pixel-pitch wall at 0.8 LEDs per sensor pixel, one degree off
 square, 1/4 scan through a 1/1600 shutter, with a fifth of the cabinets faulted.*
 
-> **Before you rely on this:** released at **v0.1.0**, and honestly early. The physics is
-> measured rather than asserted, by a harness that drives the real plugin class: at 0.8 LEDs per
-> pixel the moiré fringe measures 5.00 px by DFT against 5.00 predicted; the scan-band period
-> lands on the predicted DFT bin at every raster tested, with a depth of 0.20000 against a closed
-> form of 0.20000, and a shutter of two whole refresh periods leaves a band 1.2e-7 deep; relative
-> band depth falls from 0.769 at 10% grey to 0.084 at 90%, and to 0.019 under Scrambled PWM; the
-> optics conserve light to 2.6e-8; a dead cabinet is exactly black and exactly cabinet-aligned;
-> and the neutral settings return the input with 0/255 deviation. All 26 controls measurably
-> change the picture. It has **never been loaded into Resolume on macOS**. The one host it has
-> run in is the fleet's own test host, `oxbow`, for 120 frames.
-> On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1, with every control matching what the plugin declares — on software rendering, so that says nothing about a GPU. Seven controls that act on the moving scan bands or on one row per cabinet (Scan Ratio, Grey Bits, Refresh Phase, Readout, Frame Rate, Module Rows, Dead Row) could not be shown moving there on a still picture.
+> **Before you rely on this:** it's released at **v0.1.0**, and it's still early days. I've
+> measured the physics rather than taking it on trust, with a harness that drives the real plugin
+> class. At 0.8 LEDs per pixel the moiré fringe measures 5.00 px by DFT against 5.00 predicted.
+> The scan-band period lands on the predicted DFT bin at every raster tested, with a depth of
+> 0.20000 against a closed form of 0.20000, and a shutter of two whole refresh periods leaves a
+> band 1.2e-7 deep. Relative band depth falls from 0.769 at 10% grey to 0.084 at 90%, and to
+> 0.019 under Scrambled PWM. The optics conserve light to 2.6e-8, a dead cabinet is exactly black
+> and exactly cabinet-aligned, and the neutral settings return the input with 0/255 deviation.
+> All 26 controls measurably change the picture. It's **never been loaded into Resolume on
+> macOS**. The one host it's run in is the fleet's own test host, `oxbow`, for 120 frames.
+> On Windows, a build of v0.1.0 loads, registers and renders in Resolume Arena 7.27.1, with every
+> control matching what the plugin declares, but that's on software rendering, so it says nothing
+> about a GPU. Seven controls that act on the moving scan bands or on one row per cabinet (Scan
+> Ratio, Grey Bits, Refresh Phase, Readout, Frame Rate, Module Rows, Dead Row) couldn't be shown
+> moving there on a still picture.
 > Try it on a spare layer before you put it in a show.
 >
 > This codebase was created with AI assistance, directed and reviewed by a human author.
@@ -43,30 +50,30 @@ Windows  %USERPROFILE%\Documents\Resolume Arena\Extra Effects\
 Avenue uses the same layout under its own folder name. The effect then appears in the effects
 browser as **SW Pitch**.
 
-The macOS download is a universal build (Apple silicon and Intel), as a `.dmg` or a `.zip`. It is
-**Developer ID-signed and notarised**, so the bundle simply loads. The
-Windows download is an x64 installer or a `.zip`. It is not code-signed, so the installer trips
+The macOS download is a universal build (Apple silicon and Intel), as a `.dmg` or a `.zip`. It's
+**Developer ID-signed and notarised**, so the bundle just loads. The
+Windows download is an x64 installer or a `.zip`. It isn't code-signed, so the installer trips
 SmartScreen once: **More info** → **Run anyway**.
 
 ---
 
 ## This is the wall *and* the camera
 
-Most looks of this kind do one or the other: a grid over the picture for the wall, or some
-lines and a colour fringe for the camera. Pitch does both, in that order, because the artefacts
-an operator fights on a show only exist when both are present. Moiré is the wall's lattice
+Most looks like this do one or the other: a grid over the picture for the wall, or some lines
+and a colour fringe for the camera. Pitch does both, in that order, because the artefacts you
+fight on a show only exist when both are there. Moiré is the wall's lattice
 beating against the sensor's. Scan bands are the wall's pulse train caught by the camera's
 rolling shutter. Neither lattice alone makes a moiré, and neither the wall nor the shutter alone
 makes a band.
 
 So the controls come in two halves. **Wall** and **Drive** are the LED product and its
-processor: how big the pixels are, how much of each cell emits, how it is scanned and at what
-refresh. **Camera** is what is pointed at it: how many LEDs land on a sensor pixel, the shutter,
+processor: how big the pixels are, how much of each cell emits, how it's scanned and at what
+refresh. **Camera** is what's pointed at it: how many LEDs land on a sensor pixel, the shutter,
 the readout, the sensor's colour mosaic. **Faults** is the wall on a bad day. Change the wall and
-the camera sees something different; change the camera and the same wall photographs
-differently. That is the effect.
+the camera sees something different, and change the camera and the same wall photographs
+differently.
 
-There is no display at the end. What comes out is the camera's picture.
+There's no display at the end. What comes out is the camera's picture.
 
 ---
 
@@ -76,14 +83,14 @@ Put SW Pitch on a layer with something in it and leave every control alone. The 
 **a 4-pixel-pitch wall of 32×32-LED cabinets at 3840 Hz and 1/16 scan, seen at a quarter of an
 LED per sensor pixel through a 1/1000 shutter on a 60 fps camera**. That makes each LED four
 sensor pixels across with black between them. The wall fills the frame, the pixel structure
-shows, and there is no moiré yet, because at four pixels per LED the camera resolves every
+shows, and there's no moiré yet, because at four pixels per LED the camera resolves every
 emitter.
 
 Then, in this order:
 
 1. **Camera Scale.** Push it up. This is zoom and distance in one number, in LEDs per sensor
    pixel. As it passes about half an LED per pixel the individual LEDs stop resolving and a
-   moiré arrives. It swims as the slider moves, and it is coloured. The wall also shrinks towards
+   moiré arrives. It swims as the slider moves, and it's coloured. The wall also shrinks towards
    the middle of the frame, because the camera is backing away from it. To keep it filling the
    frame, bring **Pitch** down as you go: the wall fills the frame when Pitch × Camera Scale is
    about 1. The picture above is Pitch 1.25 at Camera Scale 0.8.
@@ -96,18 +103,18 @@ Then, in this order:
 4. **Fault Rate.** Raise it and some cabinets die, dim, lose a row of LEDs or shift colour.
 
 **Be honest about the input.** Bands need grey. An LED at full level is on for the whole refresh
-period, so there is nothing for a shutter to catch or miss, and a picture of pure saturated
+period, so there's nothing for a shutter to catch or miss, and a picture of pure saturated
 primaries shows no bands in those colours at all. A real wall at full white behaves the same
 way. Mid and low greys band the most, which is also where a real wall breaks up.
 
 Two formulas carry most of the instrument:
 
 - **Moiré fringe = 1 / | s − round( s ) | pixels**, at *s* LEDs per pixel (Camera Scale). At 0.8
-  that is 5 px, at 0.9 it is 10, and at 1.25 it is 4. Close to a whole number the fringe is long
+  that's 5 px, at 0.9 it's 10, and at 1.25 it's 4. Close to a whole number the fringe is long
   and wide. At exactly one LED per pixel, square on, every pixel holds exactly one cell and the
   lattice disappears into flat light.
 - **Band period = refresh period ÷ ( Readout ÷ rows )**, in sensor rows. At the defaults on a
-  1080-row picture that is about 17.6 rows.
+  1080-row picture that's about 17.6 rows.
 
 ---
 
@@ -144,7 +151,7 @@ light scales with the fill, as on a real product: a low-fill wall is a darker wa
 
 - **3-in-1 SMD** — each LED is one square emitting all three colours from the same place.
 - **Discrete RGB** — each LED is three vertical strips side by side, red, green and blue, each a
-  third of the emitter's width and three times as bright. From a distance it is the same light.
+  third of the emitter's width and three times as bright. From a distance it's the same light.
   When the camera is close enough to resolve the chips, it sees coloured stripes, and they
   saturate.
 
@@ -254,7 +261,7 @@ cabinet when its draw falls under Fault Rate × that control.
 **Dead** — the whole cabinet goes black. Default 0.3.
 
 **Dim** — the cabinet runs darker, by between a quarter and three quarters of the Dim amount, so
-a run of dim cabinets is not all the same shade. The seams are visible because a dim cabinet is a
+a run of dim cabinets isn't all the same shade. The seams are visible because a dim cabinet is a
 gain. Default 0.5.
 
 **Dead Row** — one LED row in one module of the cabinet goes black, across the cabinet's full
@@ -275,7 +282,7 @@ the default is 1. At 1 the output is fully opaque: an LED wall is an opaque obje
 picture, and the black round it and between its pixels is part of the picture, not transparency.
 Below 1 the alpha is mixed towards the clip's.
 
-There is no gamma control. See Known limits.
+There's no gamma control. See Known limits.
 
 ---
 
@@ -314,12 +321,12 @@ runs of 60 frames, on a GPU shared with other work:
 | 2560×1440 | 2.11 | 12.7% |
 | 3840×2160 | 4.91 | 29.5% |
 
-**At 4K this is three tenths of a frame**, and an operator stacking effects will feel it. Two
+**At 4K this is three tenths of a frame**, and if you're stacking effects you'll feel it. Two
 controls multiply the sensor pass's cost: **Rotation** costs nine boxes per pixel instead of one,
 and **Focus** costs thirty-two taps per pixel (four times that again with **OLPF** on). Both are
 off by default. **Bayer On** adds one more pass. A very small **Pitch** on a very large clip
 makes a very large wall. At Pitch 1 the wall has one float texel per clip pixel, and no side can
-exceed 4096 LEDs. If the effect cannot allocate its buffers it does nothing and says so in the
+exceed 4096 LEDs. If the effect can't allocate its buffers it does nothing and says so in the
 log.
 
 Nothing was timed inside Resolume, and nothing was timed on Windows.
@@ -335,24 +342,24 @@ even that is missing, see *The effect does nothing at all* below.
 Scale is far from 1. The wall is sized in LEDs by Pitch and seen at Camera Scale LEDs per pixel.
 Bring them back towards each other.
 
-**There is no moiré.** Camera Scale is below about 0.5, where the camera resolves the LEDs, or
+**There's no moiré.** Camera Scale is below about 0.5, where the camera resolves the LEDs, or
 above about 3, where each pixel averages them. Focus or OLPF may also be taking it out. At
-exactly 1 LED per pixel, square on, there is none by design.
+exactly 1 LED per pixel, square on, there's none at all, and that's correct.
 
-**There are no bands.** The picture is at full level in the colours you are looking at, the
+**There are no bands.** The picture is at full level in the colours you're looking at, the
 shutter is a whole number of refresh periods, PWM is Scrambled, or the refresh is high and the
 shutter long. Try a mid-grey area and a shorter Shutter.
 
-**The bands stand still.** Refresh ÷ Frame Rate is a whole number. That is locking, and a locked
+**The bands stand still.** Refresh ÷ Frame Rate is a whole number. That's locking, and a locked
 camera does the same. Try 59.94.
 
 **Cabinet W, Cabinet H or Module Rows do nothing.** On a healthy wall they only move where the
 wall's edges fall. Raise Fault Rate.
 
-**Colour fringes along every edge.** That is the Bayer demosaic. Turn Bayer On off to compare.
+**Colour fringes along every edge.** That's the Bayer demosaic. Turn Bayer On off to compare.
 
-**The effect does nothing at all.** A shader that will not compile looks exactly like that, and
-so does a wall too large to allocate. The real message is in the log:
+**The effect does nothing at all.** A shader that won't compile looks just like that, and so
+does a wall too large to allocate. The actual message is in the log:
 
 ```
 macOS    ~/Library/Logs/pitch/pitch.YYYY-MM-DD.log
@@ -360,15 +367,15 @@ Windows  %LOCALAPPDATA%\pitch\logs\pitch.YYYY-MM-DD.log
 ```
 
 It records the GL vendor and version at load, which shader failed if one did, and the buffer
-sizes if they could not be allocated, with the advice to try a larger Pitch.
+sizes if they couldn't be allocated, with the advice to try a larger Pitch.
 
 ---
 
 ## Known limits
 
-- **Never loaded into Resolume on macOS**, and nothing has driven the controls in a host. How
-  26 controls in five groups read in the inspector, how the integer cabinet fields type, and what
-  a long session's clock does to the band phase are untested.
+- **Never loaded into Resolume on macOS**, and nothing has driven the controls in a host. I
+  haven't tested how 26 controls in five groups read in the inspector, how the integer cabinet
+  fields type, or what a long session's clock does to the band phase.
 - **No gamma on the wall.** The PWM is driven by the clip's code values directly. A real
   processor applies a gamma first, so a real wall's dark pulses are shorter still and its
   low-grey breakup is worse than shown here.
@@ -378,13 +385,13 @@ sizes if they could not be allocated, with the advice to try a larger Pitch.
 - **Past three LEDs per pixel a side** the sensor reads the wall's mean times the fill instead of
   walking every emitter.
 - **Scrambled PWM is always sixteen sub-periods.** Real drivers vary.
-- **The host clock handling has only met the harness's clock.** It is the same code as the
-  fleet's readout effect, which has met Arena. This effect has not.
+- **The host clock handling has only met the harness's clock.** It's the same code as the
+  fleet's readout effect, which has met Arena. This one hasn't.
 - **Not verified at 4K**, only timed there.
 - **No presets** and no OpenFX version.
-- **There is a browser demo** at [pitch-demo.stoatworks-labs.com](https://pitch-demo.stoatworks-labs.com).
-  It is a port to a web page, not the plugin: the shaders run in WebGL2 and any CPU
-  half is rewritten in JavaScript. The page lists what it does not reproduce.
+- **There's a browser demo** at [pitch-demo.stoatworks-labs.com](https://pitch-demo.stoatworks-labs.com).
+  It's a port to a web page rather than the plugin: the shaders run in WebGL2 and any CPU
+  half is rewritten in JavaScript. The page lists what it doesn't reproduce.
 
 ---
 
