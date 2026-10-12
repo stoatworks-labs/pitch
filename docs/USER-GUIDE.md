@@ -385,8 +385,8 @@ sizes if they couldn't be allocated, with the advice to try a larger Pitch.
 - **Past three LEDs per pixel a side** the sensor reads the wall's mean times the fill instead of
   walking every emitter.
 - **Scrambled PWM is always sixteen sub-periods.** Real drivers vary.
-- **The host clock handling has only met the harness's clock.** It's the same code as the
-  fleet's readout effect, which has met Arena. This one hasn't.
+- **The host clock handling has only met the harness's clock and one Arena gate run on
+  Windows.** It's the same code as the fleet's readout effect, which has met Arena.
 - **Not verified at 4K**, only timed there.
 - **No presets** and no OpenFX version.
 - **There's a browser demo** at [pitch-demo.stoatworks-labs.com](https://pitch-demo.stoatworks-labs.com).
