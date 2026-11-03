@@ -14,6 +14,8 @@ Arena and Avenue. It gives you the moiré, the scan bands, the low-grey breakup 
 cabinets that you'd normally spend the camera check trying to get rid of, only this time on
 purpose.
 
+The [project page](https://stoatworks-labs.com/software/pitch/) has the downloads, the [user guide](https://stoatworks-labs.com/software/pitch/guide/) and the video.
+
 ![A test card on an LED wall photographed through a rolling-shutter camera: fine coloured moiré, horizontal scan bands, and cabinets that are dead, dim or missing a row](docs/hero.png)
 
 <sub>One frame, rendered by `pitest`, the offline harness, rather than captured from
